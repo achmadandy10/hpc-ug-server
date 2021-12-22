@@ -21,10 +21,6 @@ class CategoryController extends Controller
                     'required',
                     Rule::unique(Category::class)
                 ],
-                'thumbnail' => [
-                    'file',
-                    'mimes:jpg,jpeg,png,svg',
-                ],
             ]
         );
 
@@ -33,14 +29,14 @@ class CategoryController extends Controller
                 'validation_errors' => $validate->errors(),
             ];
 
-            return ResponseFormatter::error(401, 'Validation Errors', $data);
+            return ResponseFormatter::validation_error('Validation Errors', $data);
         }
 
         try {
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
                 $extension = $file->getClientOriginalExtension();
-                $newName = time() . $request->label . '.' . $extension;
+                $newName = time() . '.' . $extension;
                 $file->move('category/', $newName);
                 $link = env('FILE_URL') . 'category/' . $newName;
             } else {

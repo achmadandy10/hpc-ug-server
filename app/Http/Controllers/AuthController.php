@@ -46,17 +46,11 @@ class AuthController extends Controller
         );
 
         if ($validate->fails()) {
-            $response = [
-                'meta' => [
-                    'status' => 'error',
-                    'message' => 'Validation Errors',
-                ],
-                'data' => [
-                    'validation_errors' => $validate->errors()
-                ]
+            $data = [
+                'validation_errors' => $validate->errors()
             ];
 
-            return response()->json($response);
+            return ResponseFormatter::validation_error('validation_errors', $data);
         }
 
         try {
@@ -111,14 +105,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            $response = [
-                'meta' => [
-                    'status' => 'error',
-                    'message' => 'Authentication Failed',
-                ],
-            ];
-
-            return response()->json($response);
+            return ResponseFormatter::validation_error('Authentication Failed');
         }
 
         if ($user->role === 1) {

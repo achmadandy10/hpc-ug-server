@@ -32,7 +32,7 @@ class FacilityController extends Controller
                 'validation_errors' => $validate->errors(),
             ];
 
-            return ResponseFormatter::error(401, 'Validation Errors', $data);
+            return ResponseFormatter::validation_error('Validation Errors', $data);
         }
 
         try {
@@ -110,7 +110,7 @@ class FacilityController extends Controller
             $remaining_stock = $facility->remaining_stock;
         } else {
             if ($request->start_stock < $facility->start_stock) {
-                return ResponseFormatter::error(401, 'Error Stock');
+                return ResponseFormatter::validation_error('Error Stock');
             } else {
                 $start_stock = $request->start_stock;
                 $remaining_stock = $request->start_stock + $facility->remaining_stock;

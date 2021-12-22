@@ -31,4 +31,14 @@ class ResponseFormatter
         return response()->json(self::$response, self::$response['meta']['code']);
     }
 
+    public static function validation_error($message = null, $data = null)
+    {
+        return response()->json([
+            'meta' => [
+                'status' => 'error',
+                'message' => $message,
+            ],
+            'data' => $data
+        ]);
+    }
 }

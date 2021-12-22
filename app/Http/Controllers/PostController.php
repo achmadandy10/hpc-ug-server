@@ -46,7 +46,7 @@ class PostController extends Controller
                 'validation_errors' => $validate->errors(),
             ];
 
-            return ResponseFormatter::error(401, 'Validation Errors', $data);
+            return ResponseFormatter::validation_error('Validation Errors', $data);
         }
 
         try {
