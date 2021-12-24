@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
 use App\Models\User;
+use App\Models\UserProfile;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,6 +20,11 @@ class AuthController extends Controller
             $request->all(),
             [
                 'first_name' => [
+                    'required',
+                    'string',
+                    "regex:/^['\p{L}\s-]+$/u",
+                ],
+                'college' => [
                     'required',
                     'string',
                     "regex:/^['\p{L}\s-]+$/u",
@@ -75,11 +81,16 @@ class AuthController extends Controller
             }
             $user = User::create([
                 'id' => $id,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
                 'role' => 5,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+            ]);
+
+            $profile = UserProfile::create([
+                'user_id' => $id,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'college' => $request->college,
             ]);
 
             $token = $user->createToken($user->email . '_token', ['server:user_external'])->plainTextToken;

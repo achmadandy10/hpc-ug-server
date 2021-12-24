@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Route::post('/admin-content/post/upload-image', [PostController::class, 'uploadImage']);
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -36,6 +38,7 @@ Route::prefix('admin-content')->middleware(['auth:sanctum', 'isAdminContent'])->
     // Category
     Route::prefix('category')->group(function () {
         Route::get('show-all', [CategoryController::class, 'showAll']);
+        Route::get('select', [CategoryController::class, 'select']);
         Route::get('show/{id}', [CategoryController::class, 'show']);
         Route::post('store', [CategoryController::class, 'store']);
         Route::post('update/{id}', [CategoryController::class, 'update']);
@@ -47,10 +50,12 @@ Route::prefix('admin-content')->middleware(['auth:sanctum', 'isAdminContent'])->
         Route::get('show-all', [PostController::class, 'showAll']);
         Route::get('status-post', [PostController::class, 'showStatusPost']);
         Route::get('status-draft', [PostController::class, 'showStatusDraft']);
-        Route::get('show/{id}', [PostController::class, 'show']);
+        Route::get('show/{id}/{slug}', [PostController::class, 'show']);
         Route::post('store', [PostController::class, 'store']);
-        Route::post('update/{id}', [PostController::class, 'update']);
-        Route::post('delete/{id}', [PostController::class, 'destroy']);
+        Route::post('upload-image', [PostController::class, 'uploadImage']);
+        Route::post('update/{id}/{slug}', [PostController::class, 'update']);
+        Route::post('draft/{id}/{slug}', [PostController::class, 'postToDraft']);
+        Route::post('delete/{id}/{slug}', [PostController::class, 'destroy']);
     });
 });
 

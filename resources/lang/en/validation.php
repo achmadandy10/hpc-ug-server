@@ -144,6 +144,11 @@ return [
             'string' => 'Nama depan harus berupa string.',
             'regex' => 'Format nama depan tidak valid.',
         ],
+        'college' => [
+            'required' => 'Instansi tidak bolek kosong.',
+            'string' => 'Instansi harus berupa string.',
+            'regex' => 'Format instansi tidak valid.',
+        ],
         'email' => [
             'required' => 'Email tidak bolek kosong.',
             'string' => 'Email harus berupa string.',
@@ -158,6 +163,23 @@ return [
         ],
         'password_confirmation' => [
             'required' => 'Konfirmasi kata sandi tidak bolek kosong.',
+        ],
+        'label' => [
+            'required' => 'Nama kategori tidak bolek kosong.',
+            'unique' => 'Kategori sudah ada.',
+        ],
+        'thumbnail' => [
+            'file' => 'Gambar mini harus berupa file.',
+            'mimes' => 'Gambar mini harus berupa file dengan tipe: :values.',
+        ],
+        'title' => [
+            'required' => 'Judul tidak bolek kosong.',
+        ],
+        'category' => [
+            'required' => 'Kategori tidak bolek kosong.',
+        ],
+        'body' => [
+            'required' => 'Konten tidak bolek kosong.',
         ],
     ],
 

@@ -65,10 +65,32 @@ class CategoryController extends Controller
 
     public function showAll()
     {
-        $category = Category::get();
+        $category = Category::orderBy('id', 'DESC')->get();
 
         $data = [
             'category' => $category
+        ];
+
+        return ResponseFormatter::success('All Categories', $data);
+    }
+    
+    public function select()
+    {
+        $category = Category::get();
+
+        $arr = [];
+
+        foreach ($category as $row) {
+            $newData = [
+                'value' => $row->id,
+                'label' => $row->label,
+            ];
+
+            array_push($arr, $newData);
+        }
+
+        $data = [
+            'category' => $arr
         ];
 
         return ResponseFormatter::success('All Categories', $data);
@@ -97,22 +119,39 @@ class CategoryController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
+    {   
         $category = Category::where('id', $id)->first();
 
-        if ($request->label === null) {
+        if ($request->label === $category->label) {
             $label = $category->label;
             $slug = Str::slug($label);
         } else {
+            $validate = Validator::make(
+                $request->all(),
+                [
+                    'label' => [
+                        Rule::unique(Category::class)
+                    ],
+                ]
+            );
+    
+            if ($validate->fails()) {
+                $data = [
+                    'validation_errors' => $validate->errors(),
+                ];
+    
+                return ResponseFormatter::validation_error('Validation Errors', $data);
+            }
+
             $label = $request->label;
             $slug = Str::slug($label);
         }
 
-        if ($request->thumbnail === null) {
+        if ($request->thumbnail !== null) {
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
                 $extension = $file->getClientOriginalExtension();
-                $newName = time() . $request->label . '.' . $extension;
+                $newName = time() . '.' . $extension;
                 $file->move('category/', $newName);
                 $link = env('FILE_URL') . 'category/' . $newName;
             } else {
@@ -138,7 +177,7 @@ class CategoryController extends Controller
 
     public function destroy($id)
     {
-        Category::where('id', $id)->delete();
+        Category::where('id', $id)->forceDelete();
 
         return ResponseFormatter::success('Success Delete Category ' . $id);
     }

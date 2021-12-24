@@ -25,9 +25,6 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'id',
-        'first_name',
-        'last_name',
-        'avatar',
         'role',
         'email',
         'password',
@@ -55,5 +52,15 @@ class User extends Authenticatable
     public function tokens()
     {
         return $this->morphMany(Sanctum::$personalAccessTokenModel, 'tokenable', "tokenable_type", "tokenable_id");
+    }
+
+    public function user_profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function admin_profile()
+    {
+        return $this->hasOne(AdminProfile::class);
     }
 }
