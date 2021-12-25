@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
+use App\Models\AdminProfile;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\QueryException;
@@ -146,5 +147,28 @@ class AuthController extends Controller
         $user->currentAccessToken()->delete();
 
         return ResponseFormatter::success('Token Revoked');
+    }
+
+    public function profile(Request $request)
+    {
+        if ($request->user()->tokenCan('server:admin_content') || $request->user()->tokenCan('server:admin_proposal_submission') || $request->user()->tokenCan('server:admin_super')) {
+            $profile = AdminProfile::where('user_id', auth()->user()->id)
+                ->first();
+
+            $data = [
+                'profile' => $profile
+            ];
+
+            return ResponseFormatter::success('Profile', $data);
+        } else {
+            $profile = UserProfile::where('user_id', auth()->user()->id)
+                ->first();
+
+            $data = [
+                'profile' => $profile
+            ];
+
+            return ResponseFormatter::success('Profile', $data);
+        }
     }
 }
