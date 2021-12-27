@@ -87,6 +87,7 @@ Route::prefix('admin-proposal')->middleware(['auth:sanctum', 'isAdminProposalSub
         Route::post('delete/{id}', [FacilityController::class, 'destroy']);
     });
 
+    // Proposal Submission
     Route::prefix('proposal-submission')->group(function () {
         Route::get('show-all', [ProposalSubmissionController::class, 'showAll']);
         Route::get('show/{id}', [ProposalSubmissionController::class, 'show']);
@@ -142,6 +143,18 @@ Route::prefix('admin-super')->middleware(['auth:sanctum', 'isAdminSuper'])->grou
         Route::post('store', [FacilityController::class, 'store']);
         Route::post('update/{id}', [FacilityController::class, 'update']);
         Route::post('delete/{id}', [FacilityController::class, 'destroy']);
+    });
+
+    // Proposal Submission
+    Route::prefix('proposal-submission')->group(function () {
+        Route::get('show-all', [ProposalSubmissionController::class, 'showAll']);
+        Route::get('show/{id}', [ProposalSubmissionController::class, 'show']);
+        Route::post('approved/{id}', [ProposalSubmissionController::class, 'approved']);
+        Route::post('rejected/{id}', [ProposalSubmissionController::class, 'rejected']);
+        Route::post('finished/{id}', [ProposalSubmissionController::class, 'finished']);
+        Route::post('store', [ProposalSubmissionController::class, 'store']);
+        Route::post('update/{id}', [ProposalSubmissionController::class, 'update']);
+        Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
     });
 
     Route::post('upload-image', [UploadImageController::class, 'uploadImage']);
