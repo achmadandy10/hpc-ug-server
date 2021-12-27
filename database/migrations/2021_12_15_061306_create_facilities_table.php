@@ -19,6 +19,7 @@ class CreateFacilitiesTable extends Migration
             $table->integer('start_stock')->default(0);
             $table->integer('remaining_stock')->default(0);
             $table->integer('use_stock')->default(0);
+            $table->string('mass_unit');
             $table->timestamps();
             $table->softDeletes();
         });

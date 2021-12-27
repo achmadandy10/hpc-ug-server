@@ -181,6 +181,48 @@ return [
         'body' => [
             'required' => 'Konten tidak bolek kosong.',
         ],
+        'name' => [
+            'required' => 'Nama tidak bolek kosong.',
+        ],
+        'start_stock' => [
+            'required' => 'Stok awal tidak bolek kosong.',
+        ],
+        'mass_unit' => [
+            'required' => 'Satuan tidak bolek kosong.',
+        ],
+        'phone_number' => [
+            'required' => 'Nomor handphone tidak bolek kosong.',
+            'numeric' => 'Nomor handphone harus berupa angka.',
+        ],
+        'research_field' => [
+            'required' => 'Bidang penelitian tidak bolek kosong.',
+        ],
+        'short_description' => [
+            'required' => 'Deskripsi singkat penelitian tidak bolek kosong.',
+        ],
+        'data_description' => [
+            'required' => 'Deskripsi data tidak bolek kosong.',
+        ],
+        'shared_data' => [
+            'required' => 'Menggunakan data bersama tidak bolek kosong.',
+        ],
+        'activity_plan' => [
+            'required' => 'Rencana kegiatan tidak bolek kosong.',
+        ],
+        'output_plan' => [
+            'required' => 'Rencana output penelitian tidak bolek kosong.',
+        ],
+        'facility_needs' => [
+            'required' => 'Kebutuhan fasilitas tidak bolek kosong.',
+        ],
+        'use_stock' => [
+            'required' => 'Jumlah kebutuhan tidak bolek kosong.',
+        ],
+        'proposal_file' => [
+            'required' => 'Unggah proposal tidak bolek kosong.',
+            'file' => 'Unggah proposal harus berupa file.',
+            'mimes' => 'Unggah proposal harus berupa file dengan tipe: :values.',
+        ],
     ],
 
     /*

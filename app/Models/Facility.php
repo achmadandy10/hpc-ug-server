@@ -20,6 +20,7 @@ class Facility extends Model
         'start_stock',
         'remaining_stock',
         'use_stock',
+        'mass_unit',
     ];
 
     public function proposal_submissions()

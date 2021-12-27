@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
-use App\Models\Post;
+use App\Models\Content;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class PostController extends Controller
+class ContentController extends Controller
 {
     public function store(Request $request)
     {
@@ -19,9 +18,6 @@ class PostController extends Controller
                 $request->all(),
                 [
                     'title' => [
-                        'required',
-                    ],
-                    'category' => [
                         'required',
                     ],
                     'body' => [
@@ -44,8 +40,8 @@ class PostController extends Controller
                 $file = $request->file('thumbnail');
                 $extension = $file->getClientOriginalExtension();
                 $newName = time() . '.' . $extension;
-                $file->move('news/', $newName);
-                $link = env('FILE_URL') . 'news/' . $newName;
+                $file->move('content/', $newName);
+                $link = env('FILE_URL') . 'content/' . $newName;
             } else {
                 $request->title === null ? $title = 'Title' : $title = $request->title;
                 $link = 'https://ui-avatars.com/api/?name=' . $title . '&color=7F9CF5&background=EBF4FF';
@@ -57,28 +53,20 @@ class PostController extends Controller
                 $slug = Str::slug($request->title);
             }
 
-            $post = Post::create([
+            $content = Content::create([
                 'title' => $request->title,
                 'slug' => $slug,
                 'thumbnail' => $link,
                 'body' => $request->body,
+                'type' => $request->type,
                 'status' => $request->status
             ]);
 
-            if ($request->category !== null) {
-                foreach (explode(',', $request->category) as $category) {
-                    DB::table('category_post')->insert([
-                        'post_id' => $post->id,
-                        'category_id' => $category
-                    ]);
-                }
-            }
-
             $data = [
-                'post' => $post
+                'content' => $content
             ];
 
-            return ResponseFormatter::success('Success Store Post', $data);
+            return ResponseFormatter::success('Success Store Content', $data);
         } catch (QueryException $error) {
             $data = [
                 'error' => $error
@@ -88,59 +76,99 @@ class PostController extends Controller
         }
     }
 
-    public function showAll()
+    public function showAllAbout()
     {
-        $post = Post::with('categories')
-            ->orderBy('id', 'DESC')
+        $content = Content::orderBy('id', 'DESC')
+            ->where('type', 'About')
             ->get();
 
         $data = [
-            'post' => $post
+            'content' => $content
         ];
 
-        return ResponseFormatter::success('All Post', $data);
+        return ResponseFormatter::success('All Content About', $data);
     }
 
-    public function showStatusPost()
+    public function showAllService()
     {
-        $post = Post::where('status', 'Post')
-            ->with('categories')
-            ->orderBy('id', 'DESC')
+        $content = Content::orderBy('id', 'DESC')
+            ->where('type', 'Service')
             ->get();
 
         $data = [
-            'post' => $post
+            'content' => $content
         ];
 
-        return ResponseFormatter::success('All Post Status Post', $data);
+        return ResponseFormatter::success('All Content Service', $data);
     }
 
-    public function showStatusDraft()
+    public function showStatusPostAbout()
     {
-        $post = Post::where('status', 'Draft')
-            ->with('categories')
+        $content = Content::where('status', 'Post')
+            ->where('type', 'About')
             ->orderBy('id', 'DESC')
             ->get();
 
         $data = [
-            'post' => $post
+            'content' => $content
         ];
 
-        return ResponseFormatter::success('All Post Status Draft', $data);
+        return ResponseFormatter::success('All Content About Status Post', $data);
+    }
+
+    public function showStatusPostService()
+    {
+        $content = Content::where('status', 'Post')
+            ->where('type', 'Service')
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        $data = [
+            'content' => $content
+        ];
+
+        return ResponseFormatter::success('All Content Service Status Post', $data);
+    }
+
+    public function showStatusDraftAbout()
+    {
+        $content = Content::where('status', 'Draft')
+            ->where('type', 'About')
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        $data = [
+            'content' => $content
+        ];
+
+        return ResponseFormatter::success('All Content About Status Draft', $data);
+    }
+
+    public function showStatusDraftService()
+    {
+        $content = Content::where('status', 'Draft')
+            ->where('type', 'Service')
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        $data = [
+            'content' => $content
+        ];
+
+        return ResponseFormatter::success('All Content Service Status Draft', $data);
     }
 
     public function show($id, $slug)
     {
-        $post = Post::where('id', $id)
+        $content = Content::where('id', $id)
             ->where('slug', $slug)
-            ->with('categories')
             ->first();
         
         $data = [
-            'post' => $post
+            'content' => $content
         ];
 
-        return ResponseFormatter::success('Post ' . $post->title, $data);
+        return ResponseFormatter::success('Content ' . $content->title, $data);
     }
 
     public function update(Request $request, $id, $slug)
@@ -150,9 +178,6 @@ class PostController extends Controller
                 $request->all(),
                 [
                     'title' => [
-                        'required',
-                    ],
-                    'category' => [
                         'required',
                     ],
                     'body' => [
@@ -170,26 +195,25 @@ class PostController extends Controller
             }
         }
 
-        $post = Post::where('id', $id)
+        $content = Content::where('id', $id)
             ->where('slug', $slug)
-            ->with('categories')
             ->first();
 
         if ($request->status === "Draft") {
             if ($request->title !== null) {
-                $post_title = $request->title;
-                $post_slug = Str::slug($request->title);
+                $content_title = $request->title;
+                $content_slug = Str::slug($request->title);
             } else {
-                $post_title = null;
-                $post_slug = Str::random(3) . '-' . Str::random(4) . '-' . Str::random(3);
+                $content_title = null;
+                $content_slug = Str::random(3) . '-' . Str::random(4) . '-' . Str::random(3);
             }
         } else {
             if ($request->title !== null) {
-                $post_title = $request->title;
-                $post_slug = Str::slug($request->title);
+                $content_title = $request->title;
+                $content_slug = Str::slug($request->title);
             } else {
-                $post_title = $post->title;
-                $post_slug = $post->slug;
+                $content_title = $content->title;
+                $content_slug = $content->slug;
             }
         }
         
@@ -198,69 +222,51 @@ class PostController extends Controller
                 $file = $request->file('thumbnail');
                 $extension = $file->getClientOriginalExtension();
                 $newName = time() . '.' . $extension;
-                $file->move('news/', $newName);
-                $link = env('FILE_URL') . 'news/' . $newName;
+                $file->move('content/', $newName);
+                $link = env('FILE_URL') . 'content/' . $newName;
             } else {
-                $link = $post->thumbnail;
+                $link = $content->thumbnail;
             }
         } else {
-            $link = $post->thumbnail;
+            $link = $content->thumbnail;
         }
         
         if ($request->body === null) {
-            $body = $post->body;
+            $body = $content->body;
         } else {
             $body = $request->body;
         }
 
-        Post::where('id', $id)
+        Content::where('id', $id)
             ->where('slug', $slug)
             ->update([
-                'title' => $post_title,
-                'slug' => $post_slug,
+                'title' => $content_title,
+                'slug' => $content_slug,
                 'thumbnail' => $link,
                 'body' => $body,
                 'status' => $request->status,
             ]);
 
-        if ($request->category !== null) {
-            DB::table('category_post')
-                ->where('post_id', $id)
-                ->delete();
-
-            foreach (explode(',',$request->category) as $row) {
-                DB::table('category_post')->insert([
-                    'post_id' => $id,
-                    'category_id' => $row
-                ]);
-            }
-        } else if ($request->category === null && $request->status === "Draft") {
-            DB::table('category_post')
-                ->where('post_id', $id)
-                ->delete();
-        }
-
-        return ResponseFormatter::success('Success Update Post');
+        return ResponseFormatter::success('Success Update Content');
     }
 
     public function postToDraft($id, $slug)
     {  
-        Post::where('id', $id)
+        Content::where('id', $id)
             ->where('slug', $slug)
             ->update([
                 'status' => 'Draft'
             ]);
 
-        return ResponseFormatter::success('Success Draft Post');
+        return ResponseFormatter::success('Success Draft Content');
     }
 
     public function destroy($id, $slug)
     {
-        Post::where('id', $id)
+        Content::where('id', $id)
             ->where('slug', $slug)
-            ->with('categories')
             ->forceDelete();
         
-        return ResponseFormatter::success('Success Delete Post');
+        return ResponseFormatter::success('Success Delete Content');
     }
 }

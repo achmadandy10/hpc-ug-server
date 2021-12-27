@@ -22,7 +22,9 @@ class FacilityController extends Controller
                 ],
                 'start_stock' => [
                     'required',
-                    'integer',
+                ],
+                'mass_unit' => [
+                    'required',
                 ],
             ]
         );
@@ -61,6 +63,7 @@ class FacilityController extends Controller
                 'name' => $request->name,
                 'start_stock' => $request->start_stock,
                 'remaining_stock' => $request->start_stock,
+                'mass_unit' => $request->mass_unit,
             ]);
 
             $data = [
@@ -75,6 +78,28 @@ class FacilityController extends Controller
 
             return ResponseFormatter::error(500, 'Query Error', $data);
         }
+    }
+
+    public function select()
+    {
+        $facility = Facility::get();
+
+        $arr = [];
+
+        foreach ($facility as $row) {
+            $newData = [
+                'value' => $row->id,
+                'label' => $row->name
+            ];
+
+            array_push($arr, $newData);
+        }
+
+        $data = [
+            'facility' => $arr
+        ];
+
+        return ResponseFormatter::success('All Facility', $data);
     }
 
     public function showAll()
@@ -109,19 +134,28 @@ class FacilityController extends Controller
             $start_stock = $facility->start_stock;
             $remaining_stock = $facility->remaining_stock;
         } else {
-            if ($request->start_stock < $facility->start_stock) {
-                return ResponseFormatter::validation_error('Error Stock');
+            if ($request->start_stock < $facility->use_stock) {
+                $data = [
+                    'validation_errors' => [
+                        'start_stock' => 'Stok Awal tidak boleh kurang dari Stok Terpakai.'
+                    ]
+                ];
+
+                return ResponseFormatter::validation_error('Error Stock', $data);
             } else {
                 $start_stock = $request->start_stock;
-                $remaining_stock = $request->start_stock + $facility->remaining_stock;
+                $remaining_stock = $request->start_stock - $facility->use_stock;
             }
         }
+
+        $request->mass_unit === null ? $mass_unit = $facility->mass_unit : $mass_unit = $request->mass_unit;
 
         $update = Facility::where('id', $id)
             ->update([
                 'name' => $name,
                 'start_stock' => $start_stock,
                 'remaining_stock' => $remaining_stock,
+                'mass_unit' => $mass_unit,
             ]);
 
         $data = [
@@ -133,7 +167,7 @@ class FacilityController extends Controller
 
     public function destroy($id)
     {
-        Facility::where('id', $id)->delete();
+        Facility::where('id', $id)->forceDelete();
     
         return ResponseFormatter::success('Success Delete Facility ' . $id);
     }

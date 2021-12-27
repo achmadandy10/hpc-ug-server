@@ -26,6 +26,7 @@ class ProposalSubmission extends Model
         'output_plan',
         'previous_experience',
         'facility_id',
+        'use_stock',
         'proposal_file',
         'status',
     ];

@@ -23,8 +23,9 @@ class CreateProposalSubmissionsTable extends Migration
             $table->boolean('shared_data');
             $table->text('activity_plan');
             $table->text('output_plan');
-            $table->text('previous_experience');
+            $table->text('previous_experience')->nullable();
             $table->string('facility_id');
+            $table->string('use_stock');
             $table->string('proposal_file');
             $table->string('status');
             $table->timestamps();
