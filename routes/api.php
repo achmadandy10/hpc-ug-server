@@ -25,6 +25,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/post', [PostController::class, 'showStatusPost']);
+Route::get('/post/show/{id}/{slug}', [PostController::class, 'show']);
+Route::get('/content/uri', [ContentController::class, 'uri']);
+Route::get('/content/about', [ContentController::class, 'showStatusPostAbout']);
+Route::get('/content/service', [ContentController::class, 'showStatusPostService']);
+Route::get('/content/show/about/{slug}', [ContentController::class, 'showAbout']);
+Route::get('/content/show/service/{slug}', [ContentController::class, 'showService']);
 
 Route::get('/check_admin', [
     'middleware' => ['isAdmin', 'auth:sanctum'],
@@ -66,6 +73,8 @@ Route::prefix('admin-content')->middleware(['auth:sanctum', 'isAdminContent'])->
         Route::get('show-all-about', [ContentController::class, 'showAllAbout']);
         Route::get('show-all-service', [ContentController::class, 'showAllService']);
         Route::get('status-post-about', [ContentController::class, 'showStatusPostAbout']);
+        Route::get('status-post-service', [ContentController::class, 'showStatusPostService']);
+        Route::get('status-draft-about', [ContentController::class, 'showStatusDraftAbout']);
         Route::get('status-draft-service', [ContentController::class, 'showStatusDraftService']);
         Route::get('show/{id}/{slug}', [ContentController::class, 'show']);
         Route::post('store', [ContentController::class, 'store']);

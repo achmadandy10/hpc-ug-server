@@ -170,6 +170,36 @@ class ContentController extends Controller
 
         return ResponseFormatter::success('Content ' . $content->title, $data);
     }
+    
+    public function uri()
+    {
+        $content = Content::where('status', 'Post')
+            ->get();
+
+        $about = []; 
+        $service = []; 
+
+        foreach ($content as $row) {
+            $newData = [
+                'label' => $row->title,
+                'slug' => $row->slug,
+                'thumbnail' => $row->thumbnail,
+            ];
+
+            if ($row->type === "About") {
+                array_push($about, $newData);
+            } else if ($row->type === "Service") {
+                array_push($service, $newData);
+            }
+        }
+        
+        $data = [
+            'uri_about' => $about,
+            'uri_service' => $service
+        ];
+
+        return ResponseFormatter::success('Uri', $data);
+    }
 
     public function update(Request $request, $id, $slug)
     {
@@ -248,6 +278,40 @@ class ContentController extends Controller
             ]);
 
         return ResponseFormatter::success('Success Update Content');
+    }
+
+    public function showAbout($slug)
+    {  
+        $content = Content::where('slug', $slug)
+            ->where('type', 'About')
+            ->first();
+
+        $data = [
+            'content' => [
+                'title' => $content->title,
+                'thumbnail' => $content->thumbnail,
+                'body' => $content->body,
+            ]
+        ];
+
+        return ResponseFormatter::success('Content About', $data);
+    }
+    
+    public function showService($slug)
+    {  
+        $content = Content::where('slug', $slug)
+            ->where('type', 'Service')
+            ->first();
+
+        $data = [
+            'content' => [
+                'title' => $content->title,
+                'thumbnail' => $content->thumbnail,
+                'body' => $content->body,
+            ]
+        ];
+
+        return ResponseFormatter::success('Content Service', $data);
     }
 
     public function postToDraft($id, $slug)
