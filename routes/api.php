@@ -8,6 +8,7 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProposalSubmissionController;
 use App\Http\Controllers\UploadImageController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/post', [PostController::class, 'showStatusPost']);
 Route::get('/post/show/{id}/{slug}', [PostController::class, 'show']);
+Route::get('/post/show/{slug}', [PostController::class, 'showCategory']);
 Route::get('/content/uri', [ContentController::class, 'uri']);
 Route::get('/content/about', [ContentController::class, 'showStatusPostAbout']);
 Route::get('/content/service', [ContentController::class, 'showStatusPostService']);
@@ -87,6 +89,11 @@ Route::prefix('admin-content')->middleware(['auth:sanctum', 'isAdminContent'])->
 });
 
 Route::prefix('admin-proposal')->middleware(['auth:sanctum', 'isAdminProposalSubmission'])->group(function () {
+    // User
+    Route::prefix('user')->group(function () {
+        Route::get('show-all', [UserController::class, 'showAll']);
+    });
+    
     // Facility
     Route::prefix('facility')->group(function () {
         Route::get('show-all', [FacilityController::class, 'showAll']);
@@ -110,6 +117,11 @@ Route::prefix('admin-proposal')->middleware(['auth:sanctum', 'isAdminProposalSub
 });
 
 Route::prefix('admin-super')->middleware(['auth:sanctum', 'isAdminSuper'])->group(function () {
+    // User
+    Route::prefix('user')->group(function () {
+        Route::get('show-all', [UserController::class, 'showAll']);
+    });
+
     // Category
     Route::prefix('category')->group(function () {
         Route::get('show-all', [CategoryController::class, 'showAll']);

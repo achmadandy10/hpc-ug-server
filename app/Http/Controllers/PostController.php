@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
+use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -110,6 +112,32 @@ class PostController extends Controller
 
         $data = [
             'post' => $post
+        ];
+
+        return ResponseFormatter::success('All Post Status Post', $data);
+    }
+    
+    public function showCategory($slug)
+    {
+        $post = Post::where('status', 'Post')
+            ->with('categories')
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        $post_category = [];
+        $category = Category::where('slug', $slug)->first();
+
+        foreach ($post as $row) {
+            foreach ($row->categories as $ctg) {
+                if ($ctg->slug === $slug) {
+                    array_push($post_category, $row);
+                }
+            }
+        }
+
+        $data = [
+            'label' => $category->label,
+            'post' => $post_category,
         ];
 
         return ResponseFormatter::success('All Post Status Post', $data);
