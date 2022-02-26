@@ -24,15 +24,14 @@ class CreateProposalSubmissionsTable extends Migration
             $table->text('activity_plan');
             $table->text('output_plan');
             $table->text('previous_experience')->nullable();
-            $table->string('facility_id');
-            $table->string('use_stock');
+            $table->string('facility_needs');
+            $table->string('docker_image');
             $table->string('proposal_file');
             $table->string('status');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('facility_id')->references('id')->on('facilities')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

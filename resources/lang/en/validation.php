@@ -215,8 +215,8 @@ return [
         'facility_needs' => [
             'required' => 'Kebutuhan fasilitas tidak bolek kosong.',
         ],
-        'use_stock' => [
-            'required' => 'Jumlah kebutuhan tidak bolek kosong.',
+        'docker_image' => [
+            'required' => 'Docker image tidak bolek kosong.',
         ],
         'proposal_file' => [
             'required' => 'Unggah proposal tidak bolek kosong.',

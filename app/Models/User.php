@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(AdminProfile::class);
     }
+
+    public function proposal()
+    {
+        return $this->hasMany(ProposalSubmission::class);
+    }
 }

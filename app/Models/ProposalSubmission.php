@@ -25,14 +25,14 @@ class ProposalSubmission extends Model
         'activity_plan',
         'output_plan',
         'previous_experience',
-        'facility_id',
-        'use_stock',
+        'facility_needs',
+        'docker_image',
         'proposal_file',
         'status',
     ];
 
-    public function facility()
+    public function user()
     {
-        return $this->belongsTo(Facility::class);
+        return $this->belongsTo(User::class);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
-use App\Models\Facility;
 use App\Models\ProposalSubmission;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -41,7 +40,7 @@ class ProposalSubmissionController extends Controller
                 'facility_needs' => [
                     'required',
                 ],
-                'use_stock' => [
+                'docker_image' => [
                     'required',
                 ],
                 'proposal_file' => [
@@ -67,7 +66,7 @@ class ProposalSubmissionController extends Controller
                 ->count();
             
             if ($check_submission === 0) {
-                $id = 'F' . date('dmy') . '0001';
+                $id = 'PS' . date('dmy') . '0001';
             } else {
                 $item = $check_submission + 1;
                 if ($item < 10) {
@@ -113,20 +112,11 @@ class ProposalSubmissionController extends Controller
                 'activity_plan' => $request->activity_plan,
                 'output_plan' => $request->output_plan,
                 'previous_experience' => $request->previous_experience,
-                'facility_id' => $request->facility_needs,
-                'use_stock' => $request->use_stock,
+                'facility_needs' => $request->facility_needs,
+                'docker_image' => $request->docker_image,
                 'proposal_file' => $link,
                 'status' => 'Pending',
             ]);
-
-            $facility = Facility::where('id', $request->facility_needs)
-                ->first();
-
-            Facility::where('id', $request->facility_needs)
-                ->update([
-                    'remaining_stock' => $facility->remaining_stock - $request->use_stock,
-                    'use_stock' => $facility->use_stock + $request->use_stock
-                ]);
 
             $data = [
                 'submission' => $submission
@@ -154,46 +144,28 @@ class ProposalSubmissionController extends Controller
 
     public function rejected($id)
     {
-        $submission = ProposalSubmission::where('id', $id)->first();
-
         ProposalSubmission::where('id', $id)
             ->update([
                 'status' => 'Rejected'
             ]);
-
-        $facility = Facility::where('id', $submission->facility_id)->first();
-        Facility::where('id', $submission->facility_id)
-                ->update([
-                    'remaining_stock' => $submission->use_stock + $facility->remaining_stock,
-                    'use_stock' => $facility->use_stock - $submission->use_stock
-                ]);
 
         return ResponseFormatter::success('Success Rejected Submission');
     }
 
     public function finished($id)
     {
-        $submission = ProposalSubmission::where('id', $id)->first();
-
         ProposalSubmission::where('id', $id)
             ->update([
                 'status' => 'Finished'
             ]);
-
-        $facility = Facility::where('id', $submission->facility_id)->first();
-        Facility::where('id', $submission->facility_id)
-                ->update([
-                    'remaining_stock' => $submission->use_stock + $facility->remaining_stock,
-                    'use_stock' => $facility->use_stock - $submission->use_stock
-                ]);
 
         return ResponseFormatter::success('Success Finished Submission');
     }
 
     public function showAll()
     {
-        $submission = ProposalSubmission::with('facility')
-            ->orderBy('id', 'DESC')
+        $submission = ProposalSubmission::orderBy('id', 'DESC')
+            ->with('user')
             ->get();
 
         $data = [
@@ -205,9 +177,9 @@ class ProposalSubmissionController extends Controller
 
     public function showAllUser()
     {
-        $submission = ProposalSubmission::with('facility')
-            ->where('user_id', auth()->user()->id)
+        $submission = ProposalSubmission::where('user_id', auth()->user()->id)
             ->orderBy('id', 'DESC')
+            ->with('user')
             ->get();
 
         $data = [
@@ -219,8 +191,8 @@ class ProposalSubmissionController extends Controller
 
     public function show($id)
     {
-        $submission = ProposalSubmission::with('facility')
-            ->where('id', $id)
+        $submission = ProposalSubmission::where('id', $id)
+            ->with('user')
             ->first();
 
         $data = [
@@ -260,7 +232,7 @@ class ProposalSubmissionController extends Controller
                 'facility_needs' => [
                     'required',
                 ],
-                'use_stock' => [
+                'docker_image' => [
                     'required',
                 ],
             ]
@@ -304,19 +276,10 @@ class ProposalSubmissionController extends Controller
                     'activity_plan' => $request->activity_plan,
                     'output_plan' => $request->output_plan,
                     'previous_experience' => $request->previous_experience,
-                    'facility_id' => $request->facility_needs,
-                    'use_stock' => $request->use_stock,
+                    'facility_needs' => $request->facility_needs,
+                    'docker_image' => $request->docker_image,
                     'proposal_file' => $link,
                     'status' => 'Pending',
-                ]);
-            
-            $facility = Facility::where('id', $request->facility_needs)
-            ->first();
-
-            Facility::where('id', $request->facility_needs)
-                ->update([
-                    'remaining_stock' => ($submission->use_stock + $facility->remaining_stock) - $request->use_stock,
-                    'use_stock' => ($facility->use_stock - $submission->use_stock) + $request->use_stock
                 ]);
 
             $data = [
@@ -335,13 +298,7 @@ class ProposalSubmissionController extends Controller
 
     public function destroy($id)
     {
-        $submission = ProposalSubmission::with('facility')->where('id', $id)->first();
-        $facility = Facility::where('id', $submission->facility_id)->first();
-        Facility::where('id', $submission->facility_id)
-                ->update([
-                    'remaining_stock' => $submission->use_stock + $facility->remaining_stock,
-                    'use_stock' => $facility->use_stock - $submission->use_stock
-                ]);
+        $submission = ProposalSubmission::where('id', $id)->first();
         $submission->forceDelete();
     
         return ResponseFormatter::success('Success Delete Submission ' . $id);
