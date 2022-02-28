@@ -6,7 +6,9 @@ use App\Helpers\ResponseFormatter;
 use App\Models\ProposalSubmission;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ProposalSubmissionController extends Controller
 {
@@ -83,9 +85,10 @@ class ProposalSubmissionController extends Controller
             if ($request->hasFile('proposal_file')) {
                 $file = $request->file('proposal_file');
                 $extension = $file->getClientOriginalExtension();
-                $newName = time() . '.' . $extension;
-                $file->move('proposal_file/', $newName);
-                $link = env('FILE_URL') . 'proposal_file/' . $newName;
+                $newName = Str::random(40) . '.' . $extension;
+
+                Storage::disk('minio')->put($newName, 'proposal');
+                $link = Storage::disk('minio')->url('proposal/'.$newName);
             } else {
                 $data = [
                     'validation_errors' => [
@@ -253,9 +256,10 @@ class ProposalSubmissionController extends Controller
             if ($request->hasFile('proposal_file')) {
                 $file = $request->file('proposal_file');
                 $extension = $file->getClientOriginalExtension();
-                $newName = time() . '.' . $extension;
-                $file->move('proposal_file/', $newName);
-                $link = env('FILE_URL') . 'proposal_file/' . $newName;
+                $newName = Str::random(40) . '.' . $extension;
+
+                Storage::disk('minio')->put($newName, 'proposal');
+                $link = Storage::disk('minio')->url('proposal/'.$newName);
             } else {
                 $link = $submission->proposal_file;
             }
