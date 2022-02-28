@@ -87,8 +87,8 @@ class ProposalSubmissionController extends Controller
                 $extension = $file->getClientOriginalExtension();
                 $newName = Str::random(40) . '.' . $extension;
 
-                Storage::disk('minio')->put($newName, 'proposal');
-                $link = Storage::disk('minio')->url('proposal/'.$newName);
+                $file->storeAs('proposal', $newName, 'minio');
+                $link = $newName;
             } else {
                 $data = [
                     'validation_errors' => [
@@ -258,8 +258,8 @@ class ProposalSubmissionController extends Controller
                 $extension = $file->getClientOriginalExtension();
                 $newName = Str::random(40) . '.' . $extension;
 
-                Storage::disk('minio')->put($newName, 'proposal');
-                $link = Storage::disk('minio')->url('proposal/'.$newName);
+                $file->storeAs('proposal', $newName, 'minio');
+                $link = $newName;
             } else {
                 $link = $submission->proposal_file;
             }
@@ -306,5 +306,12 @@ class ProposalSubmissionController extends Controller
         $submission->forceDelete();
     
         return ResponseFormatter::success('Success Delete Submission ' . $id);
+    }
+
+    public function readFile($filename)
+    {
+        $response = Storage::disk('minio')->response('proposal/'.$filename);
+        
+        return $response;
     }
 }

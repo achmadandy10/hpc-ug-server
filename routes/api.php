@@ -194,6 +194,7 @@ Route::prefix('user-external')->middleware(['auth:sanctum', 'isUserExternal'])->
         Route::post('store', [ProposalSubmissionController::class, 'store']);
         Route::post('update/{id}', [ProposalSubmissionController::class, 'update']);
         Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
+        Route::get('file/{filename}', [ProposalSubmissionController::class, 'readFile']);
     });
 });
 
@@ -210,6 +211,7 @@ Route::prefix('user-internal')->middleware(['auth:sanctum', 'isUserInternal'])->
         Route::post('store', [ProposalSubmissionController::class, 'store']);
         Route::post('update/{id}', [ProposalSubmissionController::class, 'update']);
         Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
+        Route::get('file/{filename}', [ProposalSubmissionController::class, 'readFile']);
     });
 });
 
