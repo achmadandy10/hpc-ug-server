@@ -22,3 +22,8 @@ Route::get('/proposal/file/{filename}', function ($filename) {
     $response = Storage::disk('minio')->response('proposal/'.$filename);
     return $response;
 });
+
+Route::get('/application_dgx/file/{filename}', function ($filename) {
+    $response = Storage::disk('minio')->response('application_dgx/'.$filename);
+    return $response;
+});

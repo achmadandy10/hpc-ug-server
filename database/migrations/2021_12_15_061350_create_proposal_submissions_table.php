@@ -17,6 +17,14 @@ class CreateProposalSubmissionsTable extends Migration
             $table->string('id')->unique();
             $table->string('user_id');
             $table->string('phone_number');
+            $table->string('educational_level');
+            $table->string('application_file');
+            $table->string('study_program');
+            $table->string('gpu');
+            $table->string('ram');
+            $table->string('storage');
+            $table->string('partner');
+            $table->string('duration');
             $table->string('research_field');
             $table->text('short_description');
             $table->text('data_description');
@@ -24,9 +32,10 @@ class CreateProposalSubmissionsTable extends Migration
             $table->text('activity_plan');
             $table->text('output_plan');
             $table->text('previous_experience')->nullable();
-            $table->string('facility_needs');
+            $table->boolean('research_fee')->nullable();
             $table->string('docker_image');
             $table->string('proposal_file');
+            $table->boolean('term_and_condition');
             $table->string('status');
             $table->timestamps();
             $table->softDeletes();

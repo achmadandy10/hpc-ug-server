@@ -223,6 +223,45 @@ return [
             'file' => 'Unggah proposal harus berupa file.',
             'mimes' => 'Unggah proposal harus berupa file dengan tipe: :values.',
         ],
+        'application_file' => [
+            'required' => 'Unggah surat pengajuan penggunaan DGX tidak bolek kosong.',
+            'file' => 'Unggah surat pengajuan penggunaan DGX harus berupa file.',
+            'mimes' => 'Unggah surat pengajuan penggunaan DGX harus berupa file dengan tipe: :values.',
+        ],
+        'educational_level' => [
+            'required' => 'Jenjang pendidikan tidak bolek kosong.',
+        ],
+        'study_program' => [
+            'required' => 'Program studi tidak bolek kosong.',
+        ],
+        'gpu' => [
+            'required' => 'Jumlah GPU tidak bolek kosong.',
+            'numeric' => 'Jumlah GPU harus berupa angka.',
+            'gt' => 'Jumlah GPU harus lebih besar dari :value.',
+        ],
+        'ram' => [
+            'required' => 'Jumlah RAM tidak bolek kosong.',
+            'numeric' => 'Jumlah RAM harus berupa angka.',
+            'gt' => 'Jumlah RAM harus lebih besar dari :value.',
+        ],
+        'storage' => [
+            'required' => 'Jumlah storage tidak bolek kosong.',
+            'numeric' => 'Jumlah storage harus berupa angka.',
+            'gt' => 'Jumlah storage harus lebih besar dari :value.',
+        ],
+        'partner' => [
+            'required' => 'Nama partner / mahasiswa tidak bolek kosong.',
+        ],
+        'duration' => [
+            'required' => 'Durasi tidak bolek kosong.',
+            'numeric' => 'Durasi harus berupa angka.',
+            'gt' => 'Durasi harus lebih besar dari :value.',
+        ],
+        'research_fee' => [
+            'required' => 'Biaya penelitian tidak bolek kosong.',
+            'numeric' => 'Biaya penelitian harus berupa angka.',
+            'gt' => 'Biaya penelitian harus lebih besar dari :value.',
+        ],
     ],
 
     /*

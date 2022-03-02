@@ -21,6 +21,40 @@ class ProposalSubmissionController extends Controller
                     'required',
                     'numeric',
                 ],
+                'educational_level' => [
+                    'required',
+                ],
+                'application_file' => [
+                    'required',
+                    'file',
+                    'mimes:pdf',
+                ],
+                'study_program' => [
+                    'required',
+                ],
+                'gpu' => [
+                    'required',
+                    'numeric',
+                    'gt:0',
+                ],
+                'ram' => [
+                    'required',
+                    'numeric',
+                    'gt:0',
+                ],
+                'storage' => [
+                    'required',
+                    'numeric',
+                    'gt:0',
+                ],
+                'partner' => [
+                    'required',
+                ],
+                'duration' => [
+                    'required',
+                    'numeric',
+                    'gt:0',
+                ],
                 'research_field' => [
                     'required',
                 ],
@@ -39,16 +73,20 @@ class ProposalSubmissionController extends Controller
                 'output_plan' => [
                     'required',
                 ],
-                'facility_needs' => [
-                    'required',
-                ],
                 'docker_image' => [
                     'required',
+                ],
+                'research_fee' => [
+                    'required',
+                    'numeric',
                 ],
                 'proposal_file' => [
                     'required',
                     'file',
                     'mimes:pdf',
+                ],
+                'term_and_condition' => [
+                    'required',
                 ],
             ]
         );
@@ -98,16 +136,46 @@ class ProposalSubmissionController extends Controller
                 return ResponseFormatter::validation_error('Error Proposal File', $data);
             }
 
+            if ($request->hasFile('application_file')) {
+                $file = $request->file('application_file');
+                $extension = $file->getClientOriginalExtension();
+                $newName = Str::random(40) . '.' . $extension;
+
+                $file->storeAs('application_dgx', $newName, 'minio');
+                $linkDGX = $newName;
+            } else {
+                $data = [
+                    'validation_errors' => [
+                        'application_file' => 'File tidak ditemukan.'
+                    ]
+                ];
+                return ResponseFormatter::validation_error('Error Proposal File', $data);
+            }
+
             if ($request->shared_data === "yes") {
                 $shared_data = 1;
             } else {
                 $shared_data = 0;
+            }
+            
+            if ($request->term_and_condition === "agree") {
+                $term_and_condition = 1;
+            } else {
+                $term_and_condition = 0;
             }
 
             $submission = ProposalSubmission::create([
                 'id' => $id,
                 'user_id' => auth()->user()->id,
                 'phone_number' => $request->phone_number,
+                'educational_level' => $request->educational_level,
+                'application_file' => $linkDGX,
+                'study_program' => $request->study_program,
+                'gpu' => $request->gpu,
+                'ram' => $request->ram,
+                'storage' => $request->storage,
+                'partner' => $request->partner,
+                'duration' => $request->duration,                
                 'research_field' => $request->research_field,
                 'short_description' => $request->short_description,
                 'data_description' => $request->data_description,
@@ -115,9 +183,10 @@ class ProposalSubmissionController extends Controller
                 'activity_plan' => $request->activity_plan,
                 'output_plan' => $request->output_plan,
                 'previous_experience' => $request->previous_experience,
-                'facility_needs' => $request->facility_needs,
                 'docker_image' => $request->docker_image,
+                'research_fee' => $request->research_fee,
                 'proposal_file' => $link,
+                'term_and_condition' => $term_and_condition,
                 'status' => 'Pending',
             ]);
 
@@ -214,6 +283,36 @@ class ProposalSubmissionController extends Controller
                     'required',
                     'numeric',
                 ],
+                'educational_level' => [
+                    'required',
+                ],
+                'application_file' => [
+                    'required',
+                    'file',
+                    'mimes:pdf',
+                ],
+                'study_program' => [
+                    'required',
+                ],
+                'gpu' => [
+                    'required',
+                    'numeric',
+                ],
+                'ram' => [
+                    'required',
+                    'numeric',
+                ],
+                'storage' => [
+                    'required',
+                    'numeric',
+                ],
+                'partner' => [
+                    'required',
+                ],
+                'duration' => [
+                    'required',
+                    'numeric',
+                ],
                 'research_field' => [
                     'required',
                 ],
@@ -232,10 +331,10 @@ class ProposalSubmissionController extends Controller
                 'output_plan' => [
                     'required',
                 ],
-                'facility_needs' => [
+                'docker_image' => [
                     'required',
                 ],
-                'docker_image' => [
+                'research_fee' => [
                     'required',
                 ],
             ]
@@ -270,9 +369,34 @@ class ProposalSubmissionController extends Controller
                 $shared_data = 0;
             }
 
+            if ($request->hasFile('application_file')) {
+                $file = $request->file('application_file');
+                $extension = $file->getClientOriginalExtension();
+                $newName = Str::random(40) . '.' . $extension;
+
+                $file->storeAs('application_dgx', $newName, 'minio');
+                $linkDGX = $newName;
+            } else {
+                $linkDGX = $submission->application_file;
+            }
+
+            if ($request->term_and_condition === "agree") {
+                $term_and_condition = 1;
+            } else {
+                $term_and_condition = 0;
+            }
+
             ProposalSubmission::where('id', $id)
                 ->update([
                     'phone_number' => $request->phone_number,
+                    'educational_level' => $request->educational_level,
+                    'application_file' => $linkDGX,
+                    'study_program' => $request->study_program,
+                    'gpu' => $request->gpu,
+                    'ram' => $request->ram,
+                    'storage' => $request->storage,
+                    'partner' => $request->partner,
+                    'duration' => $request->duration,
                     'research_field' => $request->research_field,
                     'short_description' => $request->short_description,
                     'data_description' => $request->data_description,
@@ -280,9 +404,10 @@ class ProposalSubmissionController extends Controller
                     'activity_plan' => $request->activity_plan,
                     'output_plan' => $request->output_plan,
                     'previous_experience' => $request->previous_experience,
-                    'facility_needs' => $request->facility_needs,
                     'docker_image' => $request->docker_image,
+                    'research_fee' => $request->research_fee,
                     'proposal_file' => $link,
+                    'term_and_condition' => $term_and_condition,
                     'status' => 'Pending',
                 ]);
 
@@ -311,6 +436,13 @@ class ProposalSubmissionController extends Controller
     public function readFile($filename)
     {
         $response = Storage::disk('minio')->response('proposal/'.$filename);
+        
+        return $response;
+    }
+
+    public function readFileApplication($filename)
+    {
+        $response = Storage::disk('minio')->response('application_dgx/'.$filename);
         
         return $response;
     }
