@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,5 +24,10 @@ Route::get('/proposal/file/{filename}', function ($filename) {
 
 Route::get('/application_dgx/file/{filename}', function ($filename) {
     $response = Storage::disk('minio')->response('application_dgx/'.$filename);
+    return $response;
+});
+
+Route::get('/procedure/file/{filename}', function ($filename) {
+    $response = Storage::disk('minio')->response('procedure/'.$filename);
     return $response;
 });

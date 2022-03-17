@@ -6,21 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class UserProfile extends Model
+class Procedure extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
-        'first_name',
-        'last_name',
-        'phone_number',
-        'college',
-        'avatar',
+        'type',
+        'document_type',
+        'file',
     ];
-
-    public function user()
-    {
-        return $this->hasOne(User::class);
-    }
 }

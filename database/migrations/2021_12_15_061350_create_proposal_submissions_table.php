@@ -32,11 +32,12 @@ class CreateProposalSubmissionsTable extends Migration
             $table->text('activity_plan');
             $table->text('output_plan');
             $table->text('previous_experience')->nullable();
-            $table->boolean('research_fee')->nullable();
+            $table->integer('research_fee')->nullable();
             $table->string('docker_image');
             $table->string('proposal_file');
             $table->boolean('term_and_condition');
             $table->string('status');
+            $table->text('rev_description')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

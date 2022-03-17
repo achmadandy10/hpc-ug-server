@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
@@ -27,6 +27,7 @@ class User extends Authenticatable
         'id',
         'role',
         'email',
+        'plain_password',
         'password',
     ];
 

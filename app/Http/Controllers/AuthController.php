@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
-use App\Models\AdminProfile;
+use App\Jobs\VerifyEmailJob;
 use App\Models\User;
 use App\Models\UserProfile;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -35,6 +38,12 @@ class AuthController extends Controller
                     'string',
                     'email',
                     Rule::unique(User::class),
+                ],
+                'phone_number' => [
+                    'required',
+                    'string',
+                    'numeric',
+                    Rule::unique(UserProfile::class),
                 ],
                 'password' => [
                     'required',
@@ -63,6 +72,8 @@ class AuthController extends Controller
         try {
             $check_user = User::select('*')
                 ->withTrashed()
+                ->where('role', 4)
+                ->where('role', 5)
                 ->whereDate('created_at', '>=', date('Y-m-d') . ' 00:00:00')
                 ->count();
             
@@ -84,6 +95,7 @@ class AuthController extends Controller
                 'id' => $id,
                 'role' => 5,
                 'email' => $request->email,
+                'plain_password' => $request->password,
                 'password' => Hash::make($request->password),
             ]);
 
@@ -91,10 +103,13 @@ class AuthController extends Controller
                 'user_id' => $id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
+                'phone_number' => $request->phone_number,
                 'college' => $request->college,
             ]);
 
             $token = $user->createToken($user->email . '_token', ['server:user_external'])->plainTextToken;
+
+            dispatch(new VerifyEmailJob($user));
             
             $data = [
                 'access_token' => $token,
@@ -152,23 +167,89 @@ class AuthController extends Controller
     public function profile(Request $request)
     {
         if ($request->user()->tokenCan('server:admin_content') || $request->user()->tokenCan('server:admin_proposal_submission') || $request->user()->tokenCan('server:admin_super')) {
-            $profile = AdminProfile::where('user_id', auth()->user()->id)
+            $profile = User::where('id', auth()->user()->id)
+                ->with('admin_profile')
                 ->first();
 
             $data = [
-                'profile' => $profile
+                'profile' => $profile,
             ];
 
             return ResponseFormatter::success('Profile', $data);
         } else {
-            $profile = UserProfile::where('user_id', auth()->user()->id)
+            $profile = User::where('id', auth()->user()->id)
+                ->with('user_profile')
                 ->first();
-
             $data = [
                 'profile' => $profile
             ];
 
             return ResponseFormatter::success('Profile', $data);
         }
+    }
+
+    public static function ldap($user) {
+        $userProfile = UserProfile::where('user_id', $user->id)
+            ->first();
+        $checkLastName = $userProfile->last_name === null ? "" : " " . $userProfile->last_name;
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('SECOND_URL').'/ldap',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'username' => explode("@",$user->email)[0],
+                'password' => $user->plain_password,
+                'mail' => $user->email,
+                'telephoneNumber' => $userProfile->phone_number,
+                'givenName' => $userProfile->first_name . $checkLastName
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        User::where('id', $user->id)
+            ->update([
+                'plain_password' => null
+            ]);
+
+        return redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/user?verified=1'));
+    }
+
+    public function verify($id)
+    {
+        $user = User::findOrFail($id);
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new Verified($user));
+
+            return request()->wantsJson()
+                ? new JsonResponse('', 204)
+                : $this->ldap($user);
+        }
+
+        return request()->wantsJson()
+            ? new JsonResponse('', 204)
+            : $this->ldap($user);
+    }
+
+    public function resend()
+    {
+        dispatch(new VerifyEmailJob(request()->user()));
+        
+        return response([
+            'data' => [
+                'message' => 'Request has been sent!',
+            ]
+        ]);
     }
 }

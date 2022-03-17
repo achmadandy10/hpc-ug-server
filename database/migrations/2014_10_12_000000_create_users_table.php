@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->integer('role')->comment('1 = Content, 2 = Proposal, 3 = Super, 4 = Internal, 5 = External');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('plain_password')->nullable();
             $table->string('password');
             $table->timestamps();
             $table->softDeletes();

@@ -1,11 +1,13 @@
 <?php
 
 use App\Helpers\ResponseFormatter;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\ProposalSubmissionController;
 use App\Http\Controllers\UploadImageController;
 use App\Http\Controllers\UserController;
@@ -34,6 +36,15 @@ Route::get('/content/about', [ContentController::class, 'showStatusPostAbout']);
 Route::get('/content/service', [ContentController::class, 'showStatusPostService']);
 Route::get('/content/show/about/{slug}', [ContentController::class, 'showAbout']);
 Route::get('/content/show/service/{slug}', [ContentController::class, 'showService']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/email/verification-notification', [AuthController::class, 'resend'])
+        ->name('verification.send');
+});
+
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
 
 Route::get('/check_admin', [
     'middleware' => ['isAdmin', 'auth:sanctum'],
@@ -91,7 +102,7 @@ Route::prefix('admin-content')->middleware(['auth:sanctum', 'isAdminContent'])->
 Route::prefix('admin-proposal')->middleware(['auth:sanctum', 'isAdminProposalSubmission'])->group(function () {
     // User
     Route::prefix('user')->group(function () {
-        Route::get('show-all', [UserController::class, 'showAll']);
+        Route::get('show-all-user', [UserController::class, 'showAllUser']);
     });
     
     // Facility
@@ -114,12 +125,35 @@ Route::prefix('admin-proposal')->middleware(['auth:sanctum', 'isAdminProposalSub
         Route::post('update/{id}', [ProposalSubmissionController::class, 'update']);
         Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
     });
+    
+    // Procedure
+    Route::prefix('procedure')->group(function () {
+        Route::get('show-all', [ProcedureController::class, 'showAll']);
+        Route::get('show/{id}', [ProcedureController::class, 'show']);
+        Route::post('store', [ProcedureController::class, 'store']);
+        Route::post('update/{id}', [ProcedureController::class, 'update']);
+        Route::post('delete/{id}', [ProcedureController::class, 'destroy']);
+    });
 });
 
 Route::prefix('admin-super')->middleware(['auth:sanctum', 'isAdminSuper'])->group(function () {
+    // Announcement
+    Route::prefix('announcement')->group(function () {
+        Route::post('store', [AnnouncementController::class, 'store']);
+    });
+    
     // User
     Route::prefix('user')->group(function () {
-        Route::get('show-all', [UserController::class, 'showAll']);
+        Route::post('register-admin', [UserController::class, 'registerAdmin']);
+        Route::get('show-all-admin', [UserController::class, 'showAllAdmin']);
+        Route::get('show-admin/{id}', [UserController::class, 'showAdmin']);
+        Route::post('update-admin/{id}', [UserController::class, 'updateAdmin']);
+        Route::post('delete-admin/{id}', [UserController::class, 'destroyAdmin']);
+        
+        Route::get('show-all-user', [UserController::class, 'showAllUser']);
+        Route::get('show-user/{id}', [UserController::class, 'showUser']);
+        Route::post('delete-user/{id}', [UserController::class, 'destroyUser']);
+        Route::post('update-user/{id}', [UserController::class, 'updateUser']);
     });
 
     // Category
@@ -178,6 +212,15 @@ Route::prefix('admin-super')->middleware(['auth:sanctum', 'isAdminSuper'])->grou
         Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
     });
 
+    // Procedure
+    Route::prefix('procedure')->group(function () {
+        Route::get('show-all', [ProcedureController::class, 'showAll']);
+        Route::get('show/{id}', [ProcedureController::class, 'show']);
+        Route::post('store', [ProcedureController::class, 'store']);
+        Route::post('update/{id}', [ProcedureController::class, 'update']);
+        Route::post('delete/{id}', [ProcedureController::class, 'destroy']);
+    });
+
     Route::post('upload-image', [UploadImageController::class, 'uploadImage']);
 });
 
@@ -194,7 +237,12 @@ Route::prefix('user-external')->middleware(['auth:sanctum', 'isUserExternal'])->
         Route::post('store', [ProposalSubmissionController::class, 'store']);
         Route::post('update/{id}', [ProposalSubmissionController::class, 'update']);
         Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
-        Route::get('file/{filename}', [ProposalSubmissionController::class, 'readFile']);
+    });
+
+    // Procedure
+    Route::prefix('procedure')->group(function () {
+        Route::get('show-all', [ProcedureController::class, 'showAll']);
+        Route::get('show/{id}', [ProcedureController::class, 'show']);
     });
 });
 
@@ -211,7 +259,12 @@ Route::prefix('user-internal')->middleware(['auth:sanctum', 'isUserInternal'])->
         Route::post('store', [ProposalSubmissionController::class, 'store']);
         Route::post('update/{id}', [ProposalSubmissionController::class, 'update']);
         Route::post('delete/{id}', [ProposalSubmissionController::class, 'destroy']);
-        Route::get('file/{filename}', [ProposalSubmissionController::class, 'readFile']);
+    });
+
+    // Procedure
+    Route::prefix('procedure')->group(function () {
+        Route::get('show-all', [ProcedureController::class, 'showAll']);
+        Route::get('show/{id}', [ProcedureController::class, 'show']);
     });
 });
 

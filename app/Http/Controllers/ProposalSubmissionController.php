@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
+use App\Jobs\ApproveEmailJob;
+use App\Jobs\RevisionEmailJob;
 use App\Models\ProposalSubmission;
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -184,7 +187,7 @@ class ProposalSubmissionController extends Controller
                 'output_plan' => $request->output_plan,
                 'previous_experience' => $request->previous_experience,
                 'docker_image' => $request->docker_image,
-                'research_fee' => $request->research_fee,
+                'research_fee' => (int)$request->research_fee,
                 'proposal_file' => $link,
                 'term_and_condition' => $term_and_condition,
                 'status' => 'Pending',
@@ -204,22 +207,96 @@ class ProposalSubmissionController extends Controller
         }
     }
     
-    public function approved($id)
+    public function approved(Request $request, $id)
     {
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'appr_description' => [
+                    'required',
+                ],
+            ]
+        );
+
+        if ($validate->fails()) {
+            $data = [
+                'validation_errors' => $validate->errors(),
+            ];
+
+            return ResponseFormatter::validation_error('Validation Errors', $data);
+        }
+
         ProposalSubmission::where('id', $id)
             ->update([
                 'status' => 'Approved'
             ]);
 
+        $proposal = ProposalSubmission::where('id', $id)
+            ->first();
+
+        $user = User::where('id', $proposal->user_id)
+            ->with('user_profile')
+            ->first();
+
+        $checkLastName = $user->user_profile->last_name === null ? "" : " ".$user->user_profile->last_name;
+
+        $details = [
+            "subject" => env('SUBJECT_REVISION_PROPOSAL'),
+            "body" => $request->appr_description,
+            "name" => $user->user_profile->first_name . $checkLastName,
+            "email" => $user->email
+        ];
+        
+        dispatch(new ApproveEmailJob($details));
+
         return ResponseFormatter::success('Success Approved Submission');
     }
 
-    public function rejected($id)
+    public function rejected(Request $request, $id)
     {
-        ProposalSubmission::where('id', $id)
-            ->update([
-                'status' => 'Rejected'
-            ]);
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'rev_description' => [
+                    'required',
+                ],
+            ]
+        );
+
+        if ($validate->fails()) {
+            $data = [
+                'validation_errors' => $validate->errors(),
+            ];
+
+            return ResponseFormatter::validation_error('Validation Errors', $data);
+        }
+        
+        // ProposalSubmission::where('id', $id)
+        //     ->update([
+        //         'status' => 'Rejected',
+        //         'rev_description' => $request->rev_description,
+        //     ]);
+
+        $proposal = ProposalSubmission::where('id', $id)
+            ->first();
+
+        $user = User::where('id', $proposal->user_id)
+            ->with('user_profile')
+            ->first();
+
+            
+        $checkLastName = $user->user_profile->last_name === null ? "" : " ".$user->user_profile->last_name;
+        
+        $details = [
+            "subject" => env('SUBJECT_REVISION_PROPOSAL'),
+            "body" => $request->rev_description,
+            "name" => $user->user_profile->first_name . $checkLastName,
+            "email" => $user->email
+        ];
+        
+        // return ResponseFormatter::success('Success Rejected Submission', $details);
+        
+        dispatch(new RevisionEmailJob($details));
 
         return ResponseFormatter::success('Success Rejected Submission');
     }
@@ -271,7 +348,7 @@ class ProposalSubmissionController extends Controller
             'submission' => $submission
         ];
 
-        return ResponseFormatter::success('All Submission', $data);
+        return ResponseFormatter::success('Submission ' . $id, $data);
     }
 
     public function update(Request $request, $id)
@@ -285,11 +362,6 @@ class ProposalSubmissionController extends Controller
                 ],
                 'educational_level' => [
                     'required',
-                ],
-                'application_file' => [
-                    'required',
-                    'file',
-                    'mimes:pdf',
                 ],
                 'study_program' => [
                     'required',
@@ -351,7 +423,7 @@ class ProposalSubmissionController extends Controller
         try {
             $submission = ProposalSubmission::where('id', $id)
                 ->first();
-                
+
             if ($request->hasFile('proposal_file')) {
                 $file = $request->file('proposal_file');
                 $extension = $file->getClientOriginalExtension();
@@ -409,6 +481,7 @@ class ProposalSubmissionController extends Controller
                     'proposal_file' => $link,
                     'term_and_condition' => $term_and_condition,
                     'status' => 'Pending',
+                    'rev_description' => null,
                 ]);
 
             $data = [

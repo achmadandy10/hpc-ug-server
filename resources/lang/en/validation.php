@@ -262,6 +262,36 @@ return [
             'numeric' => 'Biaya penelitian harus berupa angka.',
             'gt' => 'Biaya penelitian harus lebih besar dari :value.',
         ],
+        'type' => [
+            'required' => 'Jenis tidak bolek kosong.',
+        ],
+        'document_type' => [
+            'required' => 'Jenis dokumen tidak bolek kosong.',
+        ],
+        'file' => [
+            'required' => 'File tidak bolek kosong.',
+            'file' => 'Upload File harus berupa file.',
+        ],
+        'avatar' => [
+            'required' => 'Avatar tidak bolek kosong.',
+            'file' => 'Avatar harus berupa file.',
+        ],
+        'role' => [
+            'required' => 'Role tidak bolek kosong.',
+            'numeric' => 'Format role salah.',
+        ],
+        'subject' => [
+            'required' => 'Subjek tidak bolek kosong.',
+        ],
+        'announcement' => [
+            'required' => 'Pengumuman tidak bolek kosong.',
+        ],
+        'rev_description' => [
+            'required' => 'Detail revisi tidak bolek kosong.',
+        ],
+        'appr_description' => [
+            'required' => 'Detail disetujui tidak bolek kosong.',
+        ],
     ],
 
     /*
