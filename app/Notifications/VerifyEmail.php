@@ -47,6 +47,7 @@ class VerifyEmail extends VerifyEmailBase
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable);
         }
+        
         return (new MailMessage)
             ->subject(('Verify Email Addresssss'))
             ->line(('Please click the button below to verify your email address.'))

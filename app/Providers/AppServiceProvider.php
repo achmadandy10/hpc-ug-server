@@ -48,6 +48,14 @@ class AppServiceProvider extends ServiceProvider
                 ->line("Terima kasih sudah mendaftar di UG AICOE, silahkan verifikasi alamat emailmu dengan klik tautan berikut:")
                 ->action('Verifikasi Alamat Email', $verifyUrl)
                 ->line("Penting untuk memiliki akun dengan alamat email yang akurat karena semua informasi tentang UG AICOE akan dikirimkan ke email ini.")
+                ->line("Setelah sukses melakukan aktivasi anda dapat menikmati fasilitas free jupyter notebook di mesin DGX-A100, dengan akses:")
+                ->line(nl2br(
+                    '<strong>' .
+                        "Host : " . env('SECOND_URL') . "\n" . 
+                        "Username : " . str_replace("@", "_at_", $user->email) . "\n" . 
+                        "Password : passsword login anda"  .
+                    '</strong>'
+                ))
                 ->line("Harap abaikan email ini bila anda tidak pernah mendaftar ke UG AICOE.");
         });
     }

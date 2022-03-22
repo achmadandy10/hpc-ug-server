@@ -11,10 +11,10 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AuthController extends Controller
 {
@@ -222,24 +222,74 @@ class AuthController extends Controller
                 'plain_password' => null
             ]);
 
-        return redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/user?verified=1'));
+        return redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=true'));
     }
 
     public function verify($id)
     {
-        $user = User::findOrFail($id);
-        if (!$user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
-            event(new Verified($user));
+        try {
+            $user = User::findOrFail($id);
 
+            if (!$user->hasVerifiedEmail()) {
+                $userProfile = UserProfile::where('user_id', $user->id)
+                    ->first();
+
+                $checkLastName = $userProfile->last_name === null ? "" : " " . $userProfile->last_name;
+
+                $curl = curl_init();
+
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => env('SECOND_URL').'/ldap',
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'POST',
+                    CURLOPT_POSTFIELDS => array(
+                        'username' => explode("@",$user->email)[0],
+                        'password' => $user->plain_password,
+                        'mail' => $user->email,
+                        'telephoneNumber' => $userProfile->phone_number,
+                        'givenName' => $userProfile->first_name . $checkLastName
+                    ),
+                ));
+
+                $response = curl_exec($curl);
+
+                curl_close($curl);
+
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                
+                if ($httpcode != 200 || $response == false) {
+                    return request()->wantsJson()
+                        ? new JsonResponse('', 204)
+                        : redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=false'));
+                }
+
+                $user->markEmailAsVerified();
+                event(new Verified($user));
+
+                User::where('id', $user->id)
+                    ->update([
+                        'plain_password' =>  null
+                    ]);
+    
+                return request()->wantsJson()
+                    ? new JsonResponse('', 204)
+                    : redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=true'));
+            }
+    
             return request()->wantsJson()
                 ? new JsonResponse('', 204)
-                : $this->ldap($user);
-        }
+                : redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=true'));
 
-        return request()->wantsJson()
-            ? new JsonResponse('', 204)
-            : $this->ldap($user);
+        } catch (ModelNotFoundException $e) {
+            return request()->wantsJson()
+                ? new JsonResponse('', 204)
+                : redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=false'));
+        }
     }
 
     public function resend()
