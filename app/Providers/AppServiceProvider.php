@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 ->line("Setelah sukses melakukan aktivasi anda dapat menikmati fasilitas free jupyter notebook di mesin DGX-A100, dengan akses:")
                 ->line(nl2br(
                     '<strong>' .
-                        "Host : " . env('SECOND_URL') . "\n" . 
+                        "Host : " . env('THRID_URL') . "\n" . 
                         "Username : " . str_replace("@", "_at_", $user->email) . "\n" . 
                         "Password : passsword login anda"  .
                     '</strong>'
