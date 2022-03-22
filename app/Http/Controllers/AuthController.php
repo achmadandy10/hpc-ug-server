@@ -257,12 +257,13 @@ class AuthController extends Controller
                 ));
 
                 $response = curl_exec($curl);
-
                 curl_close($curl);
-
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 
-                if ($httpcode != 200 || $response == false) {
+                $resInfo = curl_getinfo($curl);
+                curl_close($curl);
+                
+
+                if ($resInfo['http_code'] != 200 || ($resInfo['http_code'] == 0 && $resInfo['header_size'] == 0) || $response == false) {
                     return request()->wantsJson()
                         ? new JsonResponse('', 204)
                         : redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=false'));
