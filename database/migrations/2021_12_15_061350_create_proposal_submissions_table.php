@@ -16,6 +16,7 @@ class CreateProposalSubmissionsTable extends Migration
         Schema::create('proposal_submissions', function (Blueprint $table) {
             $table->string('id')->unique();
             $table->string('user_id');
+            $table->string('type_of_proposal');
             $table->string('phone_number');
             $table->string('educational_level');
             $table->string('application_file');

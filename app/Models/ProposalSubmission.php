@@ -17,6 +17,7 @@ class ProposalSubmission extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'type_of_proposal',
         'phone_number',
         'educational_level',
         'application_file',

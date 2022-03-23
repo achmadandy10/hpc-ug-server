@@ -20,6 +20,9 @@ class ProposalSubmissionController extends Controller
         $validate = Validator::make(
             $request->all(),
             [
+                'type_of_proposal' => [
+                    'required',
+                ],
                 'phone_number' => [
                     'required',
                     'numeric',
@@ -169,6 +172,7 @@ class ProposalSubmissionController extends Controller
 
             $submission = ProposalSubmission::create([
                 'id' => $id,
+                'type_of_proposal' => $request->type_of_proposal,
                 'user_id' => auth()->user()->id,
                 'phone_number' => $request->phone_number,
                 'educational_level' => $request->educational_level,
@@ -241,7 +245,7 @@ class ProposalSubmissionController extends Controller
         $checkLastName = $user->user_profile->last_name === null ? "" : " ".$user->user_profile->last_name;
 
         $details = [
-            "subject" => env('SUBJECT_REVISION_PROPOSAL'),
+            "subject" => env('SUBJECT_APPROVE_PROPOSAL'),
             "body" => $request->appr_description,
             "name" => $user->user_profile->first_name . $checkLastName,
             "email" => $user->email
@@ -271,11 +275,11 @@ class ProposalSubmissionController extends Controller
             return ResponseFormatter::validation_error('Validation Errors', $data);
         }
         
-        // ProposalSubmission::where('id', $id)
-        //     ->update([
-        //         'status' => 'Rejected',
-        //         'rev_description' => $request->rev_description,
-        //     ]);
+        ProposalSubmission::where('id', $id)
+            ->update([
+                'status' => 'Rejected',
+                'rev_description' => $request->rev_description,
+            ]);
 
         $proposal = ProposalSubmission::where('id', $id)
             ->first();
@@ -293,8 +297,7 @@ class ProposalSubmissionController extends Controller
             "name" => $user->user_profile->first_name . $checkLastName,
             "email" => $user->email
         ];
-        
-        // return ResponseFormatter::success('Success Rejected Submission', $details);
+
         
         dispatch(new RevisionEmailJob($details));
 
@@ -356,6 +359,9 @@ class ProposalSubmissionController extends Controller
         $validate = Validator::make(
             $request->all(),
             [
+                'type_of_proposal' => [
+                    'required',
+                ],
                 'phone_number' => [
                     'required',
                     'numeric',
@@ -460,6 +466,7 @@ class ProposalSubmissionController extends Controller
 
             ProposalSubmission::where('id', $id)
                 ->update([
+                    'type_of_proposal' => $request->type_of_proposal,
                     'phone_number' => $request->phone_number,
                     'educational_level' => $request->educational_level,
                     'application_file' => $linkDGX,

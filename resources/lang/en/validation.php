@@ -292,6 +292,9 @@ return [
         'appr_description' => [
             'required' => 'Detail disetujui tidak bolek kosong.',
         ],
+        'type_of_proposal' => [
+            'required' => 'Jenis penelitian tidak bolek kosong.',
+        ],
     ],
 
     /*

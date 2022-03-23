@@ -248,7 +248,7 @@ class AuthController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => array(
-                        'username' => explode("@",$user->email)[0],
+                        'username' => $user->email,
                         'password' => $user->plain_password,
                         'mail' => $user->email,
                         'telephoneNumber' => $userProfile->phone_number,
