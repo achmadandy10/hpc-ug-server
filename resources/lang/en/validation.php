@@ -193,6 +193,7 @@ return [
         'phone_number' => [
             'required' => 'Nomor handphone tidak bolek kosong.',
             'numeric' => 'Nomor handphone harus berupa angka.',
+            'unique' => 'Nomor handphone sudah dipakai.',
         ],
         'research_field' => [
             'required' => 'Bidang penelitian tidak bolek kosong.',

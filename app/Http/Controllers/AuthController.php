@@ -70,37 +70,15 @@ class AuthController extends Controller
         }
 
         try {
-            $check_user = User::select('*')
-                ->withTrashed()
-                ->where('role', 4)
-                ->where('role', 5)
-                ->whereDate('created_at', '>=', date('Y-m-d') . ' 00:00:00')
-                ->count();
-            
-            if ($check_user === 0) {
-                $id = 'HPC' . date('dmy') . '0001';
-            } else {
-                $item = $check_user + 1;
-                if ($item < 10) {
-                    $id = 'HPC' . date('dmy') . '000' . $item;
-                } elseif ($item >= 10 && $item <= 99) {
-                    $id = 'HPC' . date('dmy') . '00' . $item;
-                } elseif ($item >= 100 && $item <= 999) {
-                    $id = 'HPC' . date('dmy') . '0' . $item;
-                } elseif ($item >= 1000 && $item <= 9999) {
-                    $id = 'HPC' . date('dmy') . $item;
-                }
-            }
             $user = User::create([
-                'id' => $id,
                 'role' => 5,
                 'email' => $request->email,
                 'plain_password' => $request->password,
                 'password' => Hash::make($request->password),
             ]);
 
-            $profile = UserProfile::create([
-                'user_id' => $id,
+            UserProfile::create([
+                'user_id' => $user->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'phone_number' => $request->phone_number,
@@ -186,43 +164,6 @@ class AuthController extends Controller
 
             return ResponseFormatter::success('Profile', $data);
         }
-    }
-
-    public static function ldap($user) {
-        $userProfile = UserProfile::where('user_id', $user->id)
-            ->first();
-        $checkLastName = $userProfile->last_name === null ? "" : " " . $userProfile->last_name;
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => env('SECOND_URL').'/ldap',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                'username' => explode("@",$user->email)[0],
-                'password' => $user->plain_password,
-                'mail' => $user->email,
-                'telephoneNumber' => $userProfile->phone_number,
-                'givenName' => $userProfile->first_name . $checkLastName
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-
-        User::where('id', $user->id)
-            ->update([
-                'plain_password' => null
-            ]);
-
-        return redirect(url(env('SANCTUM_STATEFUL_DOMAINS') . '/verifikasi?verified=true'));
     }
 
     public function verify($id)

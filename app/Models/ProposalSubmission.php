@@ -2,20 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProposalSubmission extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    protected $primaryKey = 'id';
-
-    public $incrementing = false;
+    use HasFactory, SoftDeletes, Uuids;
 
     protected $fillable = [
-        'id',
         'user_id',
         'type_of_proposal',
         'phone_number',

@@ -106,26 +106,6 @@ class ProposalSubmissionController extends Controller
         }
 
         try {
-            $check_submission = ProposalSubmission::select('*')
-                ->withTrashed()
-                ->whereDate('created_at', '>=', date('Y-m-d') . ' 00:00:00')
-                ->count();
-            
-            if ($check_submission === 0) {
-                $id = 'PS' . date('dmy') . '0001';
-            } else {
-                $item = $check_submission + 1;
-                if ($item < 10) {
-                    $id = 'PS' . date('dmy') . '000' . $item;
-                } elseif ($item >= 10 && $item <= 99) {
-                    $id = 'PS' . date('dmy') . '00' . $item;
-                } elseif ($item >= 100 && $item <= 999) {
-                    $id = 'PS' . date('dmy') . '0' . $item;
-                } elseif ($item >= 1000 && $item <= 9999) {
-                    $id = 'PS' . date('dmy') . $item;
-                }
-            }
-
             if ($request->hasFile('proposal_file')) {
                 $file = $request->file('proposal_file');
                 $extension = $file->getClientOriginalExtension();
@@ -171,7 +151,6 @@ class ProposalSubmissionController extends Controller
             }
 
             $submission = ProposalSubmission::create([
-                'id' => $id,
                 'type_of_proposal' => $request->type_of_proposal,
                 'user_id' => auth()->user()->id,
                 'phone_number' => $request->phone_number,

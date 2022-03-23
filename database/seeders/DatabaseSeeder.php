@@ -15,8 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
-            'id' => 'ADM'. date('dmy') . '0001',
+        $adminContent = User::create([
             'role' => 1,
             'email' => 'admincontent@mail.test',
             'email_verified_at' => now(),
@@ -24,13 +23,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         AdminProfile::create([
-            'user_id' => 'ADM'. date('dmy') . '0001',
+            'user_id' => $adminContent->id,
             'first_name' => 'Admin',
             'last_name' => 'Konten',
         ]);
         
-        User::create([
-            'id' => 'ADM'. date('dmy') . '0002',
+        $adminProposal = User::create([
             'role' => 2,
             'email' => 'adminproposal@mail.test',
             'email_verified_at' => now(),
@@ -38,13 +36,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         AdminProfile::create([
-            'user_id' => 'ADM'. date('dmy') . '0002',
+            'user_id' => $adminProposal->id,
             'first_name' => 'Admin',
             'last_name' => 'Pengajuan Usulan',
         ]);
         
-        User::create([
-            'id' => 'ADM'. date('dmy') . '0003',
+        $adminSuper = User::create([
             'role' => 3,
             'email' => 'adminsuper@mail.test',
             'email_verified_at' => now(),
@@ -52,7 +49,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         AdminProfile::create([
-            'user_id' => 'ADM'. date('dmy') . '0003',
+            'user_id' => $adminSuper->id,
             'first_name' => 'Admin',
             'last_name' => 'Super',
         ]);
