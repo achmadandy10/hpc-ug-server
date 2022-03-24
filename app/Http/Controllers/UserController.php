@@ -57,30 +57,8 @@ class UserController extends Controller
         }
         
         
-        try {              
-            $check_user = User::select('*')
-            ->withTrashed()
-            ->whereIn('role', [1, 2, 3])
-            ->whereDate('created_at', '>=', date('Y-m-d') . ' 00:00:00')
-                ->count();
-
-            if ($check_user === 0) {
-                $id = 'ADM' . date('dmy') . '0001';
-            } else {
-                $item = $check_user + 1;
-                if ($item < 10) {
-                    $id = 'ADM' . date('dmy') . '000' . $item;
-                } elseif ($item >= 10 && $item <= 99) {
-                    $id = 'ADM' . date('dmy') . '00' . $item;
-                } elseif ($item >= 100 && $item <= 999) {
-                    $id = 'ADM' . date('dmy') . '0' . $item;
-                } elseif ($item >= 1000 && $item <= 9999) {
-                    $id = 'ADM' . date('dmy') . $item;
-                }
-            }
-                
+        try {  
             $user = User::create([
-                'id' => $id,
                 'role' => $request->role,
                 'email' => $request->email,
                 'email_verified_at' => date('now'),
@@ -88,7 +66,7 @@ class UserController extends Controller
             ]);
 
             AdminProfile::create([
-                'user_id' => $id,
+                'user_id' => $user->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
             ]);
