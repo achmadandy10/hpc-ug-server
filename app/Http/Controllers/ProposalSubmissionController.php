@@ -234,8 +234,36 @@ class ProposalSubmissionController extends Controller
 
         return ResponseFormatter::success('Success Approved Submission');
     }
+    
+    public function rejected($id)
+    {
+        ProposalSubmission::where('id', $id)
+            ->update([
+                'status' => 'Rejected'
+            ]);
 
-    public function rejected(Request $request, $id)
+        $proposal = ProposalSubmission::where('id', $id)
+            ->first();
+
+        // $user = User::where('id', $proposal->user_id)
+        //     ->with('user_profile')
+        //     ->first();
+
+        // $checkLastName = $user->user_profile->last_name === null ? "" : " ".$user->user_profile->last_name;
+
+        // $details = [
+        //     "subject" => env('SUBJECT_APPROVE_PROPOSAL'),
+        //     "body" => $request->appr_description,
+        //     "name" => $user->user_profile->first_name . $checkLastName,
+        //     "email" => $user->email
+        // ];
+        
+        // dispatch(new ApproveEmailJob($details));
+
+        return ResponseFormatter::success('Success Rejected Submission');
+    }
+
+    public function revision(Request $request, $id)
     {
         $validate = Validator::make(
             $request->all(),
@@ -256,7 +284,7 @@ class ProposalSubmissionController extends Controller
         
         ProposalSubmission::where('id', $id)
             ->update([
-                'status' => 'Rejected',
+                'status' => 'Revision',
                 'rev_description' => $request->rev_description,
             ]);
 
@@ -280,7 +308,7 @@ class ProposalSubmissionController extends Controller
         
         dispatch(new RevisionEmailJob($details));
 
-        return ResponseFormatter::success('Success Rejected Submission');
+        return ResponseFormatter::success('Success Revision Submission');
     }
 
     public function finished($id)
