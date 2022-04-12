@@ -79,9 +79,6 @@ class ProposalSubmissionController extends Controller
                 'output_plan' => [
                     'required',
                 ],
-                'docker_image' => [
-                    'required',
-                ],
                 'research_fee' => [
                     'required',
                     'numeric',
@@ -414,9 +411,6 @@ class ProposalSubmissionController extends Controller
                     'required',
                 ],
                 'output_plan' => [
-                    'required',
-                ],
-                'docker_image' => [
                     'required',
                 ],
                 'research_fee' => [
